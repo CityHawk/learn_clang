@@ -2,14 +2,16 @@
 #include <stdlib.h>
 #include <math.h>
 #include <float.h>
+#include <ctype.h>
+#include <string.h>
 
 #define MAXOP 100
 #define NUMBER '0'
 #define VAR '1'
 
-int getop(char []);
 void push(double);
 double pop(void);
+int isalldigit(char *s);
 
 /* reverse Polish calculator */
 int main(int argc, char *argv[])
@@ -17,37 +19,30 @@ int main(int argc, char *argv[])
     int type;
     double op2;
     char s[MAXOP];
+    int i;
 
-    while ((type = getop(s)) != EOF) {
-        switch (type) {
-        case NUMBER:
-            push(atof(s));
-            break;
-        case '+':
+    for (i = 1; i < argc; i++) {
+        if (isalldigit(argv[i])) {
+            push(atof(argv[i]));
+        } else if (strcmp(argv[i],"+") == 0) {
             push(pop() + pop());
-            break;
-        case '*':
-            push(pop() * pop());
-            break;
-        case '-':
+        } else if (strcmp(argv[i],"-") == 0) {
             op2 = pop();
             push(pop() - op2);
-            break;
-        case '/':
+        } else if (strcmp(argv[i],"*") == 0) {
+            push(pop() * pop());
+        } else if (strcmp(argv[i],"/") == 0) {
             op2 = pop();
             if (op2 != 0.0)
                 push(pop() / op2);
             else
                 printf("error: zero divisor\n");
-            break;
-        case '\n':
-            printf("\t%.8g\n", pop());
-            break;
-        default:
+        } else {
+            printf("%d\n", isalldigit(argv[i]));
             printf("error: unknown command %s\n", s);
-            break;
         }
     }
+    printf("%f\n", pop());
     return 0;
 }
 
@@ -72,53 +67,18 @@ double pop(void) {
     }
 }
 
-#include <ctype.h>
-int getch(void);
-void ungetch(int);
+int isalldigit(char *s) {
+    char *_t;
 
-int getop(char *s) {
-    int i, c;
-
-    while ((s[0] = c = getch()) == ' ' || c == '\t')
-        ;
-
-    s[1] = '\0';
-
-    if (!isdigit(c) && c != '.') {
-        if (c >= 'A' && c <= 'Z')
-            return VAR;
-        else
-            return c; /* not a number */
+    _t = s;
+    while (*s != '\0') {
+        if (isdigit(*s) || '.' == *s) {
+            s++;
+        } else {
+            s = _t;
+            return 0;
+        }
     }
-
-    i = 0;
-
-    if (isdigit(c)) /* collect integer part */
-        while (isdigit(s[++i] = c = getch()))
-            ;
-
-    if (c == '.') /* collect fraction part */
-        while (isdigit(s[++i] = c = getch()))
-            ;
-
-    s[i] = '\0';
-    if (c != EOF)
-        ungetch(c);
-    return NUMBER;
-}
-
-#define BUFSIZE 100
-
-char buf[BUFSIZE];
-int bufp = 0;
-
-int getch(void) {
-    return (bufp > 0) ? buf[--bufp] : getchar();
-}
-
-void ungetch(int c) {
-    if (bufp >= BUFSIZE)
-        printf("ungetch: too many characters\n");
-    else
-        buf[bufp++] = c;
+    s = _t;
+    return 1;
 }
