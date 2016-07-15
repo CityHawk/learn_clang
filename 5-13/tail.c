@@ -12,5 +12,9 @@ int main(int argc, char *argv[]) {
     while ((c=getline(&line,&linecap,stdin)) > 0) {
         lineptr[nline++]=line;
     }
+
+    while (nline-- > 0) {
+        printf("%d %s\n", nline, lineptr[nline]);
+    }
 }
 
