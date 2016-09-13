@@ -20,11 +20,11 @@ void minprintf(char *fmt, ...)
         switch (*++p) {
             case 'd':
                 ival = va_arg(ap, int);
-                char _s[100];
+                char _s[10];
+                int i = 0;
                 itoa(ival, _s);
-                while (*_s) {
-                    printf("\n%char_c", *_s);
-                    /* putchar(*_s++); */
+                while (_s[i]) {
+                    putchar(_s[i++]);
                 }
                 /* printf("Should I fail"); */
                 break;
