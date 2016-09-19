@@ -4,15 +4,17 @@
 
 /* int getline(char *line, int max); */
 
-int grep(char *line,char *pattern);
+int grep(char *,char *, FILE *);
+
+static int except = 0;
+static int number = 0;
 
 /* find:  print lines that match pattern from 1st arg */
 int main(int argc, char *argv[])
 {
     char *line;
-    size_t linecap = 0;
     long lineno = 0;
-    int c, except = 0, number = 0, found = 0;
+    int c, number = 0, found = 0;
 
     while (--argc > 0 && (*++argv)[0] == '-')
         while ((c = *++argv[0]))
@@ -37,19 +39,22 @@ int main(int argc, char *argv[])
         if (argc > 0) {
             // read files
         }
-        while (getline(&line, &linecap, stdin) > 0) {
-            lineno++;
-            if ((strstr(line, pattern) != NULL) != except) {
-                if (number)
-                    printf("%ld:", lineno);
-                printf("%s", line);
-                found++;
-            }
-        }
     }
     return found;
 }
 
-int grep(char *line,char *pattern) {
-    return 0;
+int grep(char *line, char *pattern, FILE *stream) {
+    int found = 0;
+    int lineno = 0;
+    size_t linecap = 0;
+    while (getline(&line, &linecap, stdin) > 0) {
+        lineno++;
+        if ((strstr(line, pattern) != NULL) != except) {
+            if (number)
+                printf("%ld:", lineno);
+            printf("%s", line);
+            found++;
+        }
+    }
+    return found;
 }
