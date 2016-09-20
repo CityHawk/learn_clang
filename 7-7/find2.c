@@ -4,7 +4,7 @@
 
 /* int getline(char *line, int max); */
 
-int grep(char *,char *, FILE *);
+int grep(char *, FILE *);
 
 static int except = 0;
 static int number = 0;
@@ -31,23 +31,35 @@ int main(int argc, char *argv[])
                 found = -1;
                 break;
             }
-    if (argc <= 1) {
+    if (argc < 1) {
         fprintf(stderr, "Usage: find -x -n pattern\n");
         exit(1);
     } else {
         char *pattern = *argv++; argc--;
-        if (argc > 0) {
-            // read files
-        }
+        if (argc > 0)
+            while (argc-- > 0) {
+                FILE *f = fopen(*argv, "r");
+                if (f == NULL) {
+                    fprintf(stderr, "Unable to read file %s\n", *argv);
+                } else {
+                    found += grep(pattern, f);
+                }
+                fclose(f);
+                argv++;
+            }
+        else
+            found += grep(pattern, stdin);
     }
     return found;
 }
 
-int grep(char *line, char *pattern, FILE *stream) {
+int grep(char *pattern, FILE *stream) {
     int found = 0;
-    int lineno = 0;
+    long lineno = 0;
     size_t linecap = 0;
-    while (getline(&line, &linecap, stdin) > 0) {
+    char *line = NULL;
+    int c;
+    while ((c = getline(&line, &linecap, stream)) > 0) {
         lineno++;
         if ((strstr(line, pattern) != NULL) != except) {
             if (number)
